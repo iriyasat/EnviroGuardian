@@ -1,23 +1,15 @@
-/* 
-  EnviroGuardian - Air Quality Monitoring System
-  Connected to Arduino IoT Cloud
-  https://create.arduino.cc/cloud/things/0a89a51a-0a04-45d0-a16e-b2d5174277d0 
-  
-  Arduino IoT Cloud Variables:
-  String airQualityStatus;
-  String coStatus;
-  String currentDate;
-  String currentTime;
-  String dayOfWeek;
-  String humidStatus;
-  String ipAddress;
-  String systemUptime;
-  String tempStatus;
-  String wifiStatus;
-  float humidity;
-  float temperature;
-  int airQuality;
-  bool coDetected;
+/*Components
+
+ESP8266 NodeMCU (Main controller)
+1.3" OLED Display SH1106 (I²C, 128x64 pixels)
+DHT22 Sensor (Temperature & humidity)
+MQ135 Gas Sensor (Air quality)
+MQ9 Gas Sensor (CO detection)
+LEDs (Green, Yellow, Red for traffic light status)
+Buzzer (Active, 3-9V for audible alerts)
+Resistors (10kΩ)
+Jumper Wires
+Breadboard
 */
 
 //==================== LIBRARIES ====================
