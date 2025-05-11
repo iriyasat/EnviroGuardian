@@ -28,7 +28,9 @@ IoT-based air quality monitoring system using ESP8266 NodeMCU. Tracks temperatur
 ## Images
 
 ### Hardware Setup
-![EnviroGuardian](EnviroGuardian%Hardware%setup.jpg)
+![Hardware Setup](EnviroGuardian%20Hardware%20setup.jpg)
 
-### Circuit Setup
-![Circuit Setup](EnviroGuardian%Circuit%Diagram.png)
+### Circuit Diagram
+![Circuit Diagram](EnviroGuardian%20Circuit%20Diagram.png)
+
+
