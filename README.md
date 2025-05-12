@@ -98,27 +98,6 @@ Alert System:
 ```
 </details>
 
-## 📊 Display Screens
-
-<table>
-  <tr>
-    <td align="center"><b>Clock & Date</b></td>
-    <td align="center"><b>Temperature & Humidity</b></td>
-  </tr>
-  <tr>
-    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=Clock+Screen" alt="Clock Screen"/></td>
-    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=Temperature+Screen" alt="Temperature Screen"/></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Air Quality</b></td>
-    <td align="center"><b>System Information</b></td>
-  </tr>
-  <tr>
-    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=Air+Quality+Screen" alt="Air Quality Screen"/></td>
-    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=System+Info+Screen" alt="System Info Screen"/></td>
-  </tr>
-</table>
-
 ## 🚀 Getting Started
 
 ### Prerequisites
