@@ -1,37 +1,178 @@
-# EnviroGuardian
+# 🌍 EnviroGuardian 🛡️
 
-IoT-based air quality monitoring system using ESP8266 NodeMCU. Tracks temperature, humidity, air quality and CO levels via DHT22, MQ135 and MQ9 sensors. Features OLED display, LED indicators, audible alerts, and Arduino IoT Cloud integration for remote monitoring. Perfect for homes, classrooms and workspaces.
+![GitHub stars](https://img.shields.io/github/stars/iriyasat/EnviroGuardian?style=social)
+<p align="center">
+  <img src="EnviroGuardian%20Hardware%20setup.jpg" alt="EnviroGuardian Device" width="600"/>
+</p>
 
-## Components
+> 🌿 Advanced IoT-based air quality monitoring system with cloud connectivity, real-time alerts, and multi-parameter sensing capabilities. Perfect for homes, classrooms and workspaces.
 
-- **ESP8266 NodeMCU** (Main controller)
-- **1.3" OLED Display SH1106** (I²C, 128x64 pixels)
-- **DHT22 Sensor** (Temperature & humidity)
-- **MQ135 Gas Sensor** (Air quality)
-- **MQ9 Gas Sensor** (CO detection)
-- **LEDs** (Green, Yellow, Red for traffic light status)
-- **Buzzer** (Active, 3-9V for audible alerts)
-- **Resistors** (10kΩ)
-- **Jumper Wires**
-- **Breadboard**
+## ✨ Features
 
-## Features
+- 📊 Real-time monitoring of temperature, humidity, air quality, and carbon monoxide
+- 🚦 Visual alerts through traffic light system (Green, Yellow, Red)
+- 🔊 Audible alerts for dangerous conditions
+- ☁️ Cloud connectivity through Arduino IoT Cloud
+- 📱 Remote monitoring and notifications
+- 🔄 Four dynamic display modes (Clock, Temperature/Humidity, Air Quality, System Info)
+- 🎬 Beautiful startup animation and intuitive interface
 
-- Real-time monitoring of temperature, humidity, air quality, and carbon monoxide
-- Visual alerts through traffic light system (Green, Yellow, Red)
-- Audible alerts for dangerous conditions
-- Cloud connectivity through Arduino IoT Cloud
-- Remote monitoring and notifications
-- 4 display modes (Clock, Temperature/Humidity, Air Quality, System Info)
-- Beautiful startup animation and intuitive interface
+## 🔧 Components
 
-## Images
+<table>
+  <tr>
+    <td><b>Controller</b></td>
+    <td>ESP8266 NodeMCU</td>
+  </tr>
+  <tr>
+    <td><b>Display</b></td>
+    <td>1.3" OLED Display SH1106 (I²C, 128x64 pixels)</td>
+  </tr>
+  <tr>
+    <td><b>Sensors</b></td>
+    <td>
+      • DHT22 (Temperature & humidity)<br>
+      • MQ135 (Air quality)<br>
+      • MQ9 (CO detection)
+    </td>
+  </tr>
+  <tr>
+    <td><b>Alert System</b></td>
+    <td>
+      • Green LED<br>
+      • Yellow LED<br>
+      • Red LED<br>
+      • Active Buzzer (3-9V)
+    </td>
+  </tr>
+  <tr>
+    <td><b>Other</b></td>
+    <td>
+      • Resistors (220Ω for LEDs, 10kΩ & 20kΩ for voltage divider)<br>
+      • Jumper Wires<br>
+      • Breadboard
+    </td>
+  </tr>
+</table>
 
-### Hardware Setup
-![Hardware Setup](EnviroGuardian%20Hardware%20setup.jpg)
+## 📋 Connection Diagram
 
-### Circuit Diagram
+<p align="center">
+  <img src="EnviroGuardian%20Circuit%20Diagram.png" alt="Circuit Diagram" width="700"/>
+</p>
 
-![Circuit Diagram](https://app.cirkitdesigner.com/project/1f74e979-1c73-493a-8dce-26fb87d5c8aa)
+### Detailed Connections
+
+<details>
+<summary>Click to expand connection details</summary>
+
+```
+OLED Display:
+- VCC → 3.3V on NodeMCU
+- GND → GND on NodeMCU
+- SCL → D1 (GPIO 5) on NodeMCU
+- SDA → D2 (GPIO 4) on NodeMCU
+
+DHT22 Sensor:
+- VCC → 3.3V on NodeMCU
+- GND → GND on NodeMCU
+- DATA → D3 (GPIO 0) on NodeMCU
+
+MQ135 Gas Sensor:
+- VCC → 5V on NodeMCU
+- GND → GND on NodeMCU
+- AO → A0 on NodeMCU (Analog input)
+- DO → D4 (GPIO 2) on NodeMCU (Digital output)
+
+MQ9 Gas Sensor:
+- VCC → 5V on NodeMCU
+- GND → GND on NodeMCU
+- AO → A0 on NodeMCU (Analog input)
+- DO → D0 (GPIO 16) on NodeMCU (Digital output)
+
+Alert System:
+- Green LED → D5 (GPIO 14) on NodeMCU (with 220Ω resistor)
+- Yellow LED → D6 (GPIO 12) on NodeMCU (with 220Ω resistor)
+- Red LED → D7 (GPIO 13) on NodeMCU (with 220Ω resistor)
+- Buzzer → D8 (GPIO 15) on NodeMCU
+```
+</details>
+
+## 📊 Display Screens
+
+<table>
+  <tr>
+    <td align="center"><b>Clock & Date</b></td>
+    <td align="center"><b>Temperature & Humidity</b></td>
+  </tr>
+  <tr>
+    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=Clock+Screen" alt="Clock Screen"/></td>
+    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=Temperature+Screen" alt="Temperature Screen"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Air Quality</b></td>
+    <td align="center"><b>System Information</b></td>
+  </tr>
+  <tr>
+    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=Air+Quality+Screen" alt="Air Quality Screen"/></td>
+    <td><img src="https://via.placeholder.com/250x120/f5f5f5/000000?text=System+Info+Screen" alt="System Info Screen"/></td>
+  </tr>
+</table>
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Arduino IDE (1.8.x or higher)
+- ESP8266 Board Manager
+- Required libraries:
+  - Arduino IoT Cloud
+  - Adafruit GFX
+  - Adafruit SH110X
+  - DHT Sensor Library
+
+### Installation
+1. Clone this repository
+   ```bash
+   git clone https://github.com/iriyasat/EnviroGuardian.git
+   ```
+2. Open the project in Arduino IDE
+3. Install the required libraries through the Library Manager
+4. Configure your Arduino IoT Cloud credentials
+5. Upload the sketch to your NodeMCU
+
+## 🔌 Arduino IoT Cloud Setup
+
+<details>
+<summary>Click to see IoT Cloud configuration steps</summary>
+
+1. Create a new Thing in Arduino IoT Cloud
+2. Add the following properties:
+   - `airQualityStatus` (String)
+   - `coStatus` (String)
+   - `currentDate` (String)
+   - `currentTime` (String)
+   - `dayOfWeek` (String)
+   - `humidStatus` (String)
+   - `ipAddress` (String)
+   - `systemUptime` (String)
+   - `tempStatus` (String)
+   - `wifiStatus` (String)
+   - `humidity` (Float)
+   - `temperature` (Float)
+   - `airQuality` (Int)
+   - `coDetected` (Bool)
+3. Create a dashboard with widgets for each property
+</details>
 
 
+## 🙏 Acknowledgements
+
+- [Arduino](https://www.arduino.cc/) for the amazing IoT Cloud platform
+- [Adafruit](https://www.adafruit.com/) for the excellent display and sensor libraries
+- [ESP8266 Community](https://github.com/esp8266/Arduino) for the NodeMCU support
+
+---
+
+<p align="center">
+  Made with ❤️ by [Ibrahim Hasan]
+</p>
