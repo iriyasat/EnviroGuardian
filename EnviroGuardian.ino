@@ -7,7 +7,7 @@
  * - Real-time temperature and humidity monitoring (DHT22)
  * - Air quality monitoring with calibrated AQI calculation (MQ135 - 5V)
  * - Carbon monoxide detection (MQ9)
- * - Advanced web dashboard with real-time charts
+ * - Advanced web dashboard
  * - Traffic light LED status system (3 LEDs)
  * - Dual active buzzer audio alerts
  * - OLED display with 3 cycling modes (10-second intervals)
@@ -559,46 +559,60 @@ void readSensors() {
   // Read raw sensor data
   temperature = dht.readTemperature();
   humidity = dht.readHumidity();
-  
-  // MQ135 gets full analog + digital reading (5V operation)
+
+  // MQ135 Analog Handling with disconnection detection
   mq135_analog = analogRead(MQ135_AO);
-  mq135_digital = digitalRead(MQ135_DO);
   
-  // MQ9 gets digital reading
-  mq9_digital = digitalRead(MQ9_DO);
+  // Check if sensor is disconnected (reading below noise floor)
+  bool mq135_disconnected = (mq135_analog < 10);
   
-  // Apply smoothing to reduce fluctuations
+  if(mq135_disconnected) {
+    mq135_analog = 0;  // Force to 0 for "disconnected" state
+    mq135_digital = HIGH;  // Override digital reading
+  } else {
+    mq135_digital = digitalRead(MQ135_DO);
+  }
+
+  // MQ9 Handling with disconnection detection
+  if(mq135_disconnected) {  // If MQ135 is disconnected, assume MQ9 is too
+    mq9_digital = HIGH;     // Override digital reading
+    co_ppm = 0.0;           // Force CO to 0
+  } else {
+    mq9_digital = digitalRead(MQ9_DO);
+    co_ppm = mq9_digital == LOW ? 100.0 : 0.0;
+  }
+
+  // Apply smoothing to environmental data
   if (!isnan(temperature)) {
     temp_smoothed = smoothValue(temp_readings, SMOOTH_SAMPLES, temperature);
   }
   if (!isnan(humidity)) {
     humidity_smoothed = smoothValue(humidity_readings, SMOOTH_SAMPLES, humidity);
   }
-  
-  // Process MQ135 data with smoothing
-  mq135_smoothed = smoothValue(mq135_readings, SMOOTH_SAMPLES, (float)mq135_analog);
-  
-  // Calculate calibrated values from MQ135 5V operation
-  float rs_135 = calculateRs((int)mq135_smoothed);
-  co2_ppm = calculateCO2ppm(rs_135);
-  calculated_aqi = mapToAQI(co2_ppm);
-  
-  // Estimate CO from MQ9 digital pin
-  co_ppm = mq9_digital == LOW ? 100.0 : 0.0;
-  
-  // Mark arrays as filled after first full cycle
-  reading_index++;
-  if (reading_index >= SMOOTH_SAMPLES) {
-    arrays_filled = true;
-    reading_index = 0;
+
+  // Process MQ135 data only if connected
+  if(!mq135_disconnected) {
+    mq135_smoothed = smoothValue(mq135_readings, SMOOTH_SAMPLES, (float)mq135_analog);
+    float rs_135 = calculateRs((int)mq135_smoothed);
+    co2_ppm = calculateCO2ppm(rs_135);
+    calculated_aqi = mapToAQI(co2_ppm);
+  } else {
+    // Safe defaults when disconnected
+    co2_ppm = 400.0;  // Normal atmospheric CO2 level
+    calculated_aqi = 0.0;
+    mq135_smoothed = 0.0;
   }
+
+  // Update sample index
+  reading_index = (reading_index + 1) % SMOOTH_SAMPLES;
+  if(reading_index == 0) arrays_filled = true;
 }
 
 // ========================================
 // WEB SERVER & API FUNCTIONS
 // ========================================
 
-// Advanced HTML Dashboard with Real-time Charts
+// Simplified Web Dashboard without Charts
 const char* dashboard_html = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -606,7 +620,6 @@ const char* dashboard_html = R"rawliteral(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EnviroGuardian v1.0 Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -821,32 +834,6 @@ const char* dashboard_html = R"rawliteral(
             font-weight: 500;
         }
         
-        .chart-container {
-            grid-column: 1 / -1;
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            margin-bottom: 30px;
-        }
-        
-        .chart-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .chart-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-        }
-        
-        .chart-subtitle {
-            color: var(--text-secondary);
-            font-size: 1rem;
-        }
-        
         .progress-container {
             margin-top: 20px;
             position: relative;
@@ -960,15 +947,7 @@ const char* dashboard_html = R"rawliteral(
                 <span class="status-text" id="statusText">System Initializing...</span>
             </div>
         </div>
-        
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2 class="chart-title">Real-time Environmental Trends</h2>
-                <p class="chart-subtitle">Last 20 data points with live updates</p>
-            </div>
-            <canvas id="environmentChart" width="400" height="150"></canvas>
-        </div>
-        
+
         <div class="grid">
             <div class="card">
                 <div class="card-header">
@@ -1043,7 +1022,6 @@ const char* dashboard_html = R"rawliteral(
                     <div><strong>📡 Network:</strong> <span id="wifiStatus">Connecting...</span></div>
                     <div><strong>🌐 IP Address:</strong> <span id="ipAddress">Loading...</span></div>
                     <div><strong>⏱️ Uptime:</strong> <span id="uptime">--</span></div>
-                    <div><strong>🔧 Traffic Light:</strong> D0=Green, D8=Yellow, D3=Red</div>
                 </div>
             </div>
         </div>
@@ -1055,90 +1033,6 @@ const char* dashboard_html = R"rawliteral(
     </div>
 
     <script>
-        var ctx = document.getElementById('environmentChart').getContext('2d');
-        var chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Temperature (°C)',
-                    data: [],
-                    borderColor: '#FF6384',
-                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }, {
-                    label: 'Humidity (%)',
-                    data: [],
-                    borderColor: '#36A2EB',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }, {
-                    label: 'AQI',
-                    data: [],
-                    borderColor: '#4BC0C0',
-                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.1)'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                },
-                animation: {
-                    duration: 1000,
-                    easing: 'easeInOutQuart'
-                }
-            }
-        });
-
-        var chartData = [];
-        var maxDataPoints = 20;
-
-        var updateChart = function(data) {
-            var now = new Date().toLocaleTimeString();
-            
-            chartData.push({
-                time: now,
-                temperature: data.temperature,
-                humidity: data.humidity,
-                aqi: data.aqi
-            });
-
-            if (chartData.length > maxDataPoints) {
-                chartData.shift();
-            }
-
-            chart.data.labels = chartData.map(function(d) { return d.time; });
-            chart.data.datasets[0].data = chartData.map(function(d) { return d.temperature; });
-            chart.data.datasets[1].data = chartData.map(function(d) { return d.humidity; });
-            chart.data.datasets[2].data = chartData.map(function(d) { return d.aqi; });
-            chart.update('none');
-        };
-
         var updateProgressBar = function(elementId, value, max, colorClass) {
             var progressBar = document.getElementById(elementId);
             var percentage = Math.min((value / max) * 100, 100);
@@ -1218,8 +1112,6 @@ const char* dashboard_html = R"rawliteral(
                     document.getElementById('ipAddress').textContent = data.ipAddress;
                     document.getElementById('uptime').textContent = data.uptime;
                     
-                    updateChart(data);
-                    
                     var updateElement = document.getElementById('lastUpdate');
                     updateElement.style.opacity = '0.5';
                     setTimeout(function() {
@@ -1262,41 +1154,36 @@ void handleAPI() {
   } else {
     uptimeStr = String(uptime / 3600) + "h " + String((uptime % 3600) / 60) + "m";
   }
+
+  // Build JSON using proper string concatenation
+  String json = "{";
+  json += "\"temperature\":" + String(temp_int / 10.0, 1) + ",";
+  json += "\"humidity\":" + String(humidity_int) + ",";
+  json += "\"aqi\":" + String(aqi_int) + ",";
+  json += "\"aqiCategory\":\"" + getAQICategory(calculated_aqi) + "\",";
+  json += "\"co2\":" + String(co2_int) + ",";
+  json += "\"co\":" + String(co_int / 10.0, 1) + ",";
+  json += "\"mq135_analog\":" + String(mq135_analog) + ",";
   
-  // Build JSON efficiently to avoid memory fragmentation
-  String json;
-  json.reserve(300);
+  // Fix for boolean values
+  json += "\"gasDetected\":";
+  json += (mq135_digital == LOW) ? "true" : "false";
+  json += ",";
   
-  json = "{\"temperature\":";
-  json += String(temp_int / 10.0, 1);
-  json += ",\"humidity\":";
-  json += String(humidity_int);
-  json += ",\"aqi\":";
-  json += String(aqi_int);
-  json += ",\"aqiCategory\":\"";
-  json += getAQICategory(calculated_aqi);
-  json += "\",\"co2\":";
-  json += String(co2_int);
-  json += ",\"co\":";
-  json += String(co_int / 10.0, 1);
-  json += ",\"mq135_analog\":";
-  json += String(mq135_analog);
-  json += ",\"gasDetected\":";
-  json += (mq135_digital == LOW ? "true" : "false");
-  json += ",\"coDetected\":";
-  json += (mq9_digital == LOW ? "true" : "false");
-  json += ",\"alertLevel\":";
-  json += String(currentAlert);
-  json += ",\"wifiConnected\":";
-  json += (WiFi.status() == WL_CONNECTED ? "true" : "false");
-  json += ",\"ipAddress\":\"";
-  json += WiFi.localIP().toString();
-  json += "\",\"uptime\":\"";
-  json += uptimeStr;
-  json += "\",\"freeRam\":";
-  json += String(ESP.getFreeHeap());
+  json += "\"coDetected\":";
+  json += (mq9_digital == LOW) ? "true" : "false";
+  json += ",";
+  
+  json += "\"alertLevel\":" + String(currentAlert) + ",";
+  
+  json += "\"wifiConnected\":";
+  json += (WiFi.status() == WL_CONNECTED) ? "true" : "false";
+  json += ",";
+  
+  json += "\"ipAddress\":\"" + WiFi.localIP().toString() + "\",";
+  json += "\"uptime\":\"" + uptimeStr + "\"";
   json += "}";
-  
+
   server.send(200, "application/json", json);
 }
 
@@ -1329,8 +1216,8 @@ void setup() {
   display.setTextColor(SH110X_WHITE);
   
   // Initialize pins
-  pinMode(MQ135_DO, INPUT);
-  pinMode(MQ9_DO, INPUT);
+  pinMode(MQ135_DO, INPUT_PULLUP);
+  pinMode(MQ9_DO, INPUT_PULLUP);
   pinMode(TRAFFIC_LIGHT_GREEN, OUTPUT);
   pinMode(TRAFFIC_LIGHT_YELLOW, OUTPUT);
   pinMode(TRAFFIC_LIGHT_RED, OUTPUT);
