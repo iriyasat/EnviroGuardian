@@ -9,8 +9,8 @@
 // ========================================
 
 // WiFi Credentials - UPDATE THESE
-const char* ssid = "Nurul Haq";
-const char* password = "114819690";
+const char* ssid = "Ibrahim's iPhone";
+const char* password = "211031666";
 
 // Web Server
 ESP8266WebServer server(80);
@@ -1387,3 +1387,4 @@ void loop() {
   }
 
   delay(200); 
+}
