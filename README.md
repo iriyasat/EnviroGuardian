@@ -918,6 +918,6 @@ We welcome contributions to improve EnviroGuardian! Here's how you can help:
 
 ### ⭐ If this project helped you, please give it a star!
 
-**Made with ❤️ by Ibrahim**
+**Made with ❤️ by Group: 7 (Section:2) **
 
 *EnviroGuardian V1.0 - Environmental Monitoring for Everyone*
