@@ -360,10 +360,6 @@ void updateStartupDisplay() {
   display.setCursor(20, 5);
   display.print("EnviroGuardian");
   
-  // Subtitle
-  display.setCursor(35, 15);
-  display.print("Professional");
-  
   // Progress bar
   drawProgressBar(10, 28, 108, 8, progressBar);
   
@@ -428,47 +424,47 @@ void displayTempHumidity() {
 void displayAirQuality() {
   display.clearDisplay();
   
-  // Header
+  // Header - Compact
   display.setTextSize(1);
   display.setCursor(0, 0);
   display.print("AIR QUALITY");
   
-  // Status indicator with AQI category
-  display.setCursor(75, 0);
+  // Status indicator - Compact
+  display.setCursor(70, 0);
   display.print(getAQICategory(calculated_aqi));
   
   // Separator line
-  display.drawLine(0, 10, 127, 10, SH110X_WHITE);
+  display.drawLine(0, 8, 127, 8, SH110X_WHITE);
   
-  // AQI Reading (comprehensive) - Larger text
-  display.setCursor(0, 16);
+  // AQI Reading - Compact but prominent
+  display.setCursor(0, 12);
   display.print("AQI:");
-  display.setCursor(25, 16);
+  display.setCursor(20, 12);
   display.setTextSize(2);
   display.printf("%.0f", calculated_aqi);
   display.setTextSize(1);
   
-  // CO2 Reading (from MQ135)
-  display.setCursor(0, 35);
+  // CO2 Reading - Left side, compact
+  display.setCursor(0, 28);
   display.print("CO2:");
-  display.setCursor(30, 35);
-  display.printf("%.0f ppm", co2_ppm);
+  display.setCursor(20, 28);
+  display.printf("%.0f", co2_ppm);
   
-  // NH3 Reading
-  display.setCursor(70, 35);
+  // NH3 Reading - Right side, compact
+  display.setCursor(65, 28);
   display.print("NH3:");
-  display.setCursor(90, 35);
+  display.setCursor(80, 28);
   display.printf("%.1f", nh3_ppm);
   
-  // Benzene Reading
-  display.setCursor(0, 47);
-  display.print("Benzene:");
-  display.setCursor(50, 47);
-  display.printf("%.2f ppm", benzene_ppm);
+  // Benzene Reading - Left side, compact
+  display.setCursor(0, 40);
+  display.print("Benz:");
+  display.setCursor(25, 40);
+  display.printf("%.2f", benzene_ppm);
   
-  // Gas detection status - Bottom right
-  display.setCursor(70, 47);
-  display.printf("Gas:%s", mq135_digital == LOW ? "YES" : "NO");
+  // Gas detection status - Right side, compact
+  display.setCursor(65, 40);
+  display.printf("Gas:%s", mq135_digital == LOW ? "Yes" : "No");
   
   display.display();
 }
@@ -1386,5 +1382,5 @@ void loop() {
     lastDebugTime = millis();
   }
 
-  delay(200); 
+  delay(200); // Faster updates for real-time sensor response (was 500ms)
 }
