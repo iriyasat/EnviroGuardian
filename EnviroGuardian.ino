@@ -1,31 +1,3 @@
-/*
- * EnviroGuardian v1.0
- * 
- * Advanced Environmental Monitoring System with Real-time Web Dashboard
- * 
- * Features:
- * - Real-time temperature and humidity monitoring (DHT22)
- * - Air quality monitoring with calibrated AQI calculation (MQ135 - 5V)
- * - Carbon monoxide detection (MQ9)
- * - Advanced web dashboard
- * - Traffic light LED status system (3 LEDs)
- * - Dual active buzzer audio alerts
- * - OLED display with 3 cycling modes (10-second intervals)
- * 
- * Hardware:
- * - ESP8266 (NodeMCU/Wemos D1 Mini)
- * - SH1106 OLED Display (128x64)
- * - DHT22 Temperature & Humidity Sensor
- * - MQ135 Air Quality Sensor (5V operation)
- * - MQ9 Gas Sensor
- * - Traffic Light Module (Green, Yellow, Red LEDs)
- * - 2x Active Buzzers
- * 
- * Author: Ibrahim Hasan
- * Version: 1.0
- * Date: 2025
- */
-
 #include <Wire.h>
 #include <Adafruit_SH110X.h>
 #include <ESP8266WiFi.h>
